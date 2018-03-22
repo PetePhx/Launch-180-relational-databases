@@ -161,11 +161,12 @@ Strawberry Shake 	2.00 	7
 
 =# INSERT INTO orders (customer_name, customer_email, burger, burger_cost,
            side, side_cost, drink,drink_cost, customer_loyalty_points)
-  VALUES
-  ('James Bergman', 'james1998@email.com', 'LS Chicken Burger', 4.50,
+  VALUES ('James Bergman', 'james1998@email.com', 'LS Chicken Burger', 4.50,
   'Fries', 0.99, 'Cola', 1.50, 28),
   ('Natasha O''Shea', 'natasha@osheafamily.com', 'LS Cheeseburger', 3.50,
   'Fries', 0.99, NULL, 0, 18),
   ('Natasha O''Shea', 'natasha@osheafamily.com', 'LS Deluxe Burger', 6.00,
   'Onion Rings', 1.50, 'Chocolate Shake', 2.00, 42),
   ('Aaron Muller', NULL, 'LS Burger', 3.00, NULL, 0, NULL, 0, 10);
+
+  INSERT 0 4
