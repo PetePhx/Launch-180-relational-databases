@@ -147,6 +147,6 @@ From bash terminal:
 $ pg_dump -d sql_book -t weather --inserts > weather.sql
 
 If we are only interested in copying the data (not schema), we can use
-metacoomand \copy in psql:
+metacommand \copy in psql:
 
 =# \copy weather to weather.sql
