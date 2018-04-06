@@ -2,23 +2,30 @@
 
 require "pg"
 
+DB = PG.connect(dbname: "expenses")
+
 def display_help
   puts <<~HELP
+
     An expense recording system
 
     Commands:
-
+    -------------------------------------------------------
     add AMOUNT MEMO [DATE] - record a new expense
+
     clear - delete all expenses
+
     list - list all expenses
+
     delete NUMBER - remove expense with id NUMBER
+
     search QUERY - list expenses with a matching memo field
+    -------------------------------------------------------
     HELP
 end
 
 def display_expenses
-  db = PG.connect(dbname: "expenses")
-  result = db.exec "SELECT * FROM expenses ORDER BY created_on;"
+  result = DB.exec "SELECT * FROM expenses ORDER BY created_on;"
 
   result.each do |row|
     puts [ row["id"].rjust(3),
@@ -28,9 +35,19 @@ def display_expenses
   end
 end
 
-case ARGV[0]
+def add_expense(amount, memo)
+  DB.exec "INSERT INTO expenses (amount, memo, created_on)
+           VALUES (#{amount}, '#{memo}', now());"
+end
+
+
+command = ARGV[0]
+case command
 when "list"
   display_expenses
+when "add"
+  abort "You must provide an amount and memo." unless ARGV.size >= 3
+  add_expense(ARGV[1].to_f, ARGV[2])
 else
   display_help
 end
