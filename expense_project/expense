@@ -1,0 +1,5 @@
+#! /home/user/.rbenv/shims/ruby
+
+require "pg"
+
+puts "Hello World"
