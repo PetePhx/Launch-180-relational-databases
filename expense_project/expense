@@ -2,8 +2,6 @@
 
 require "pg"
 
-DB = PG.connect(dbname: "expenses")
-
 def display_help
   puts <<~HELP
 
@@ -24,30 +22,46 @@ def display_help
     HELP
 end
 
-def display_expenses
-  result = DB.exec "SELECT * FROM expenses ORDER BY created_on;"
+class ExpenseData
+  def initialize
+    @connection = PG.connect(dbname: "expenses")
+  end
 
-  result.each do |row|
-    puts [ row["id"].rjust(3),
-           row["created_on"].rjust(10),
-           row["amount"].rjust(12),
-           row["memo"] ].join(' | ')
+  def display_expenses
+    result = @connection.exec "SELECT * FROM expenses ORDER BY created_on;"
+
+    result.each do |row|
+      puts [ row["id"].rjust(3),
+             row["created_on"].rjust(10),
+             row["amount"].rjust(12),
+             row["memo"] ].join(' | ')
+    end
+  end
+
+  def add_expense(amount, memo)
+    sql = "INSERT INTO expenses (amount, memo, created_on) VALUES ($1, $2, now());"
+    @connection.exec_params(sql, [amount, memo])
   end
 end
 
-def add_expense(amount, memo)
-  sql = "INSERT INTO expenses (amount, memo, created_on) VALUES ($1, $2, now());"
-  DB.exec_params(sql, [amount, memo])
+class CLI
+  def initialize
+    @application = ExpenseData.new
+  end
+
+  def run(args)
+    command = args[0]
+    case command
+    when "list"
+      @application.display_expenses
+    when "add"
+      abort "You must provide an amount and memo." unless args.size >= 3
+      @application.add_expense(args[1].to_f, args[2])
+    else
+      display_help
+    end
+  end
 end
 
 
-command = ARGV[0]
-case command
-when "list"
-  display_expenses
-when "add"
-  abort "You must provide an amount and memo." unless ARGV.size >= 3
-  add_expense(ARGV[1].to_f, ARGV[2])
-else
-  display_help
-end
+CLI.new.run(ARGV)
