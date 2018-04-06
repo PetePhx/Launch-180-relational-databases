@@ -2,4 +2,12 @@
 
 require "pg"
 
-puts "Hello World"
+db = PG.connect(dbname: "expenses")
+result = db.exec "SELECT * FROM expenses;"
+
+result.each do |row|
+  puts [ row["id"].rjust(3),
+         row["created_on"].rjust(10),
+         row["amount"].rjust(12),
+         row["memo"] ].join(' | ')
+end
