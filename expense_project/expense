@@ -3,7 +3,7 @@
 require "pg"
 
 db = PG.connect(dbname: "expenses")
-result = db.exec "SELECT * FROM expenses;"
+result = db.exec "SELECT * FROM expenses ORDER BY created_on;"
 
 result.each do |row|
   puts [ row["id"].rjust(3),
