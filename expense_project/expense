@@ -36,8 +36,8 @@ def display_expenses
 end
 
 def add_expense(amount, memo)
-  DB.exec "INSERT INTO expenses (amount, memo, created_on)
-           VALUES (#{amount}, '#{memo}', now());"
+  sql = "INSERT INTO expenses (amount, memo, created_on) VALUES ($1, $2, now());"
+  DB.exec_params(sql, [amount, memo])
 end
 
 
