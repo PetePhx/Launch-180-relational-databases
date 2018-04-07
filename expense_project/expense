@@ -71,13 +71,29 @@ class ExpenseData
   private
 
     def display_expenses(expenses)
-      puts
+      display_count(expenses)
+      return if expenses.ntuples == 0
+
+      total = expenses.field_values("amount").map(&:to_f).sum
       expenses.each do |row|
         puts [ row["id"].rjust(3),
                row["created_on"].rjust(10),
                row["amount"].rjust(12),
                row["memo"] ].join(' | ')
       end
+      puts "--------------------------------------------------"
+      puts "Total#{format('%.2f', total).rjust(26)}"
+    end
+
+    def display_count(expenses)
+      if expenses.ntuples == 0
+        puts "There are no expenses."
+      elsif expenses.ntuples == 1
+        puts "There is one expense:"
+      else
+        puts "There are #{expenses.ntuples} expenses:"
+      end
+      puts
     end
 end
 
@@ -92,7 +108,9 @@ class CLI
     when "list"
       @application.list_expenses
     when "add"
-      abort "You must provide an amount and memo! @_@" unless args.size >= 3
+      unless args.size >= 3 && args[1].to_f >= 0.01
+        abort "You must provide a positive amount and memo for the expense!"
+      end
       @application.add_expense(args[1].to_f, args[2])
     when "search"
       abort "You must provide a search term! o_o" unless args.size >= 2
