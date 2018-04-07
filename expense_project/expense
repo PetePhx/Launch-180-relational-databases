@@ -48,6 +48,20 @@ class ExpenseData
     display_expenses(result)
   end
 
+  def delete_expense(id)
+    sql_select = "SELECT * FROM expenses WHERE id = $1;"
+    sql_delete = "DELETE FROM expenses WHERE id = $1;"
+
+    result = @connection.exec_params(sql_select, [id])
+    if result.ntuples > 0
+      @connection.exec_params(sql_delete, [id])
+      puts "The following expense has been deleted:"
+      display_expenses(result)
+    else
+      puts "No expense with an id of #{id} was found."
+    end
+  end
+
   private
 
     def display_expenses(expenses)
@@ -77,6 +91,11 @@ class CLI
     when "search"
       abort "You must provide a search term! o_o" unless args.size >= 2
       @application.search_expenses(args[1])
+    when "delete"
+      unless args.size >= 2 && args[1].to_i >= 1
+       abort "You must provide a positive integer id for an item to be deleted!"
+      end
+      @application.delete_expense(args[1])
     else
       display_help
     end
