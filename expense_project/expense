@@ -27,21 +27,38 @@ class ExpenseData
     @connection = PG.connect(dbname: "expenses")
   end
 
-  def display_expenses
+  def list_expenses
     result = @connection.exec "SELECT * FROM expenses ORDER BY created_on;"
-
-    result.each do |row|
-      puts [ row["id"].rjust(3),
-             row["created_on"].rjust(10),
-             row["amount"].rjust(12),
-             row["memo"] ].join(' | ')
-    end
+    display_expenses(result)
   end
 
   def add_expense(amount, memo)
     sql = "INSERT INTO expenses (amount, memo, created_on) VALUES ($1, $2, now());"
     @connection.exec_params(sql, [amount, memo])
   end
+
+  def search_expenses(term)
+    sql = <<~SQL
+    SELECT * FROM expenses
+      WHERE memo ~* $1
+      ORDER BY created_on;
+    SQL
+
+    result = @connection.exec_params(sql, [term])
+    display_expenses(result)
+  end
+
+  private
+
+    def display_expenses(expenses)
+      puts
+      expenses.each do |row|
+        puts [ row["id"].rjust(3),
+               row["created_on"].rjust(10),
+               row["amount"].rjust(12),
+               row["memo"] ].join(' | ')
+      end
+    end
 end
 
 class CLI
@@ -53,15 +70,17 @@ class CLI
     command = args[0]
     case command
     when "list"
-      @application.display_expenses
+      @application.list_expenses
     when "add"
-      abort "You must provide an amount and memo." unless args.size >= 3
+      abort "You must provide an amount and memo! @_@" unless args.size >= 3
       @application.add_expense(args[1].to_f, args[2])
+    when "search"
+      abort "You must provide a search term! o_o" unless args.size >= 2
+      @application.search_expenses(args[1])
     else
       display_help
     end
   end
 end
-
 
 CLI.new.run(ARGV)
