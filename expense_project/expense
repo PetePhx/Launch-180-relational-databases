@@ -41,11 +41,11 @@ class ExpenseData
   def search_expenses(term)
     sql = <<~SQL
     SELECT * FROM expenses
-      WHERE memo ~* $1
+      WHERE memo ILIKE $1
       ORDER BY created_on;
     SQL
 
-    result = @connection.exec_params(sql, [term])
+    result = @connection.exec_params(sql, ["%#{term}%"])
     display_expenses(result)
   end
 
