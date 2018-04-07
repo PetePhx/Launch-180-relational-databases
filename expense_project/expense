@@ -26,6 +26,7 @@ end
 class ExpenseData
   def initialize
     @connection = PG.connect(dbname: "expenses")
+    setup_schema
   end
 
   def list_expenses
@@ -74,6 +75,7 @@ class ExpenseData
       display_count(expenses)
       return if expenses.ntuples == 0
 
+      puts "--------------------------------------------------"
       total = expenses.field_values("amount").map(&:to_f).sum
       expenses.each do |row|
         puts [ row["id"].rjust(3),
@@ -93,7 +95,25 @@ class ExpenseData
       else
         puts "There are #{expenses.ntuples} expenses:"
       end
-      puts
+    end
+
+    def setup_schema
+      result = @connection.exec <<~SQL
+                                SELECT COUNT(*) FROM information_schema.tables
+                                  WHERE table_schema = 'public'
+                                  AND table_name = 'expenses';
+                                SQL
+
+      if result[0]["count"] == "0"
+        @connection.exec <<~SQL
+          CREATE TABLE expenses (
+            id SERIAL PRIMARY KEY,
+            amount NUMERIC(6,2) NOT NULL CHECK (amount >= 0.01),
+            memo TEXT NOT NULL,
+            created_on DATE NOT NULL
+          );
+          SQL
+      end
     end
 end
 
