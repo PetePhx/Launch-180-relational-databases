@@ -1,6 +1,7 @@
 #! /home/user/.rbenv/shims/ruby
 
 require "pg"
+require "io/console"
 
 def display_help
   puts <<~HELP
@@ -62,6 +63,11 @@ class ExpenseData
     end
   end
 
+  def delete_all_expenses
+    @connection.exec("DELETE FROM expenses;")
+    puts "All expenses have been deleted."
+  end
+
   private
 
     def display_expenses(expenses)
@@ -96,6 +102,10 @@ class CLI
        abort "You must provide a positive integer id for an item to be deleted!"
       end
       @application.delete_expense(args[1])
+    when "clear"
+      puts "This will remove all expenses. Are you sure? (y/n)"
+      abort unless STDIN.getch.downcase == 'y'
+      @application.delete_all_expenses
     else
       display_help
     end
