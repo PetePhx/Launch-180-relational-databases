@@ -19,6 +19,7 @@ SELECT name AS "At Least One Bid Less Than 100 Dollars"
                    FROM bids
                    WHERE items.id = bids.item_id);
 
+
 Finally, write another query using the ALL clause to return items with all bids
 less than 100 dollars.
 
@@ -34,8 +35,31 @@ Expected Output:
  Television
 (4 rows)
 
-SELECT name AS " Highest Bid Less Than 100 Dollars"
+SELECT name AS "Highest Bid Less Than 100 Dollars"
   FROM items
   WHERE 100 > ALL (SELECT amount
                    FROM bids
                    WHERE items.id = bids.item_id);
+
+
+Further Exploration
+
+There is a way to get the same result table back using ALL for this exercise.
+How would you go about doing this? Note that the answer lies in the previous
+exercises for this set.
+
+SELECT name AS "Highest Bid Less Than 100 Dollars"
+  FROM items
+  WHERE 100 > ALL (SELECT amount
+                   FROM bids
+                   WHERE items.id = bids.item_id)
+  AND EXISTS (SELECT 1
+                   FROM bids
+                   WHERE items.id = bids.item_id);
+
+Highest Bid Less Than 100 Dollars
+-----------------------------------
+Vase
+Outdoor Grill
+Video Game
+(3 rows)
