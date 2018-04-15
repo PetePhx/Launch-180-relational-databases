@@ -54,8 +54,8 @@ SELECT name AS "Highest Bid Less Than 100 Dollars"
                    FROM bids
                    WHERE items.id = bids.item_id)
   AND EXISTS (SELECT 1
-                   FROM bids
-                   WHERE items.id = bids.item_id);
+                FROM bids
+                WHERE items.id = bids.item_id);
 
 Highest Bid Less Than 100 Dollars
 -----------------------------------
